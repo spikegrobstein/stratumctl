@@ -1,0 +1,30 @@
+#! /usr/bin/env ruby
+
+require 'erb'
+
+@stratums = {
+  :pot  => 'pot-us.lifeforce.info:3663',
+  :gun  => 'gun-us.lifeforce.info:7878',
+  :cptl => 'stratum.poolest.com:3336',
+  :vio  => 'vio-stratum.pool.mn:7816',
+  :doge => 'stratum2.dogechain.info:3333'
+}
+
+config_template_path = File.join( File.dirname(__FILE__), 'config.erb' )
+config_path = '/etc/haproxy/haproxy.cfg'
+
+@port = 6666
+@group_name = 'stratum'
+
+@active_server = ARGV.shift
+
+puts "active server: #{ @active_server }"
+
+erb = ERB.new( File.open( config_template_path ).read ).result(binding)
+
+File.open( config_path, 'w' ) do |f|
+  f.write erb
+end
+
+`/etc/init.d/haproxy reload && /etc/init.d/haproxy restart`
+
